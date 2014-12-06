@@ -27,9 +27,18 @@ Note that for the first run you should set ```Config.RENEW_INDEX = true```!
 
 Please refrain from crawling the whole pages again and again.
 
+
 Searching
 ---------
 
 To query the database you need to simply run the identifier 
 (```Identifier.main```). It will open a ```FileChooser``` which tries to load 
 the selected file as an image and searches for similar images in the database.
+
+
+Background
+----------
+
+The program was built during the 
+<a href="http://www.meetup.com/data-ms/events/218642227/">Hackathon of 
+data://Münster</a>.
