@@ -9,9 +9,18 @@ public class Config {
             + File.separator;
     public static final String IMAGE_INDEX = DATABASE_DIR + "index"
             + File.separator;
+    public static final String SURF_INDEX = DATABASE_DIR + "surfonly"
+            + File.separator;
+    public static final String FULL_INDEX = DATABASE_DIR + "fullindex"
+            + File.separator;
+    
+    public static final String USE_INDEX = IMAGE_INDEX;
+    
     public static final String COMPANY_DIR = DATABASE_DIR + "companies"
             + File.separator;
     public static final int LIMIT = -1;
+    public static final boolean GRAY_SCALE = true;
+    
     public static final boolean DEBUG = false;
     public static final int MAX_RESULTS = 30;
     public static final boolean RENEW_INDEX = false;

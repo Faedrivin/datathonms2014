@@ -1,6 +1,5 @@
 package main;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -36,10 +35,10 @@ import org.apache.lucene.store.FSDirectory;
 import company.CompanyLogo;
 
 public class Identifier {
-    private static ImageSearchHits hits = null;
 
     /**
-     * Starts the identifier which lets you choose a file and compares it to the database.
+     * Starts the identifier which lets you choose a file and compares it to the
+     * database.
      * 
      * @param args
      */
@@ -86,7 +85,7 @@ public class Identifier {
 
         try {
             IndexReader idxReader = DirectoryReader.open(FSDirectory
-                    .open(new File(Config.IMAGE_INDEX)));
+                    .open(new File(Config.USE_INDEX)));
             System.out.println("Searching in " + idxReader.numDocs()
                     + " logos.");
             if (idxReader.numDocs() == 0) {
@@ -94,44 +93,69 @@ public class Identifier {
                         "Database empty", JOptionPane.ERROR_MESSAGE, null);
                 return;
             }
-            @SuppressWarnings("deprecation")
-            ImageSearcher searcher = ImageSearcherFactory
-                    .createSimpleSearcher(Config.MAX_RESULTS);
+
+            ImageSearcher edgeSearcher = ImageSearcherFactory
+                    .createEdgeHistogramImageSearcher(Config.MAX_RESULTS);
+            ImageSearcher colorSearcher = ImageSearcherFactory
+                    .createColorLayoutImageSearcher(Config.MAX_RESULTS);
+            ImageSearcher jcdSearcher = ImageSearcherFactory
+                    .createJCDImageSearcher(Config.MAX_RESULTS);
+
             Document doc = searchLogo.createFeatures();
 
-            JFrame waitFrame = new JFrame("Please wait...");
-            waitFrame.add(new JLabel("Please wait, searching..."));
-            waitFrame.setPreferredSize(new Dimension(250, 50));
-            waitFrame.setSize(new Dimension(250, 50));
-            waitFrame.setMinimumSize(new Dimension(250, 50));
-            waitFrame.setLocationRelativeTo(null);
-            waitFrame.setVisible(true);
+            showSearchImage(image);
 
-            hits = searcher.search(doc, idxReader);
+            // replace these lines with whatever you are searching for
+            ImageSearchHits edgeHits = edgeSearcher.search(doc, idxReader);
+            showResults(edgeHits, "Edge features");
 
-            waitFrame.dispose();
+            ImageSearchHits colorHits = colorSearcher.search(doc, idxReader);
+            showResults(colorHits, "Color features");
+
+            ImageSearchHits jcdHits = jcdSearcher.search(doc, idxReader);
+            showResults(jcdHits, "JCD features");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        showResults(image);
+    /**
+     * Shows the search image in a separate window.
+     * This window closes the application on exit, thus allowing for quickly
+     * closing multiple result sets.
+     * 
+     * @param searchImage The search image.
+     */
+    public static void showSearchImage(BufferedImage searchImage) {
+        JFrame frame = new JFrame("Searching for...");
+        JPanel searchImagePanel = new JPanel();
+        searchImagePanel.add(new JLabel(new ImageIcon(searchImage
+                .getScaledInstance(
+                        searchImage.getWidth() > 400
+                                && searchImage.getWidth() >= searchImage
+                                        .getHeight() ? 400 : -1,
+                        searchImage.getHeight() > searchImage.getWidth()
+                                && searchImage.getHeight() > 200 ? 200 : -1,
+                        Image.SCALE_SMOOTH))));
+        frame.add(searchImagePanel);
+        frame.pack();
+        frame.setLocation(0, 0);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
 
     }
 
     /**
-     * Once the results are found, a result window with results appears.
-     * @param searchImage The image which was searched for.
+     * Presents the results in a simple window.
+     * 
+     * @param hits The result set to be viewed.
+     * @param title The window title.
      */
-    public static void showResults(BufferedImage searchImage) {
-        JFrame resultFrame = new JFrame("Company Identifier");
+    public static void showResults(ImageSearchHits hits, String title) {
+        JFrame resultFrame = new JFrame(title);
         resultFrame.setLayout(new BoxLayout(resultFrame.getContentPane(),
                 BoxLayout.Y_AXIS));
-
-        JPanel searchImagePanel = new JPanel();
-        searchImagePanel.add(new JLabel(new ImageIcon(searchImage
-                .getScaledInstance(searchImage.getWidth() > 400 ? 400 : -1, -1,
-                        Image.SCALE_SMOOTH))));
-        resultFrame.add(searchImagePanel);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0, 4, 5, 5));
@@ -185,30 +209,7 @@ public class Identifier {
         resultFrame.setSize(dim);
         resultFrame.setMinimumSize(dim);
         resultFrame.setLocationRelativeTo(null);
-        resultFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        resultFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         resultFrame.setVisible(true);
-    }
-
-    public static void showImage(String name) {
-        BufferedImage logo = null;
-        try {
-            logo = ImageIO
-                    .read(new File(Config.IMAGE_BASE_DIR + name + ".png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        JFrame frame = new JFrame();
-        JPanel mainPanel = new JPanel(new BorderLayout());
-
-        JLabel lblimage = new JLabel(new ImageIcon(logo));
-
-        mainPanel.add(lblimage);
-        frame.add(mainPanel);
-
-        frame.setSize(logo.getWidth(), logo.getHeight() + 50);
-        frame.setVisible(true);
-
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 }

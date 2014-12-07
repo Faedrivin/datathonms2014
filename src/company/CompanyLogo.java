@@ -73,7 +73,7 @@ public class CompanyLogo {
      *            be the company ID, as it helps the lookup.
      * @return the SurfFeatures
      */
-    private Document createFeatures(String identifier) {
+    public Document createFeatures(String identifier) {
         ChainedDocumentBuilder documentBuilder = new ChainedDocumentBuilder();
         documentBuilder.addBuilder(new SurfDocumentBuilder());
         documentBuilder.addBuilder(DocumentBuilderFactory
@@ -82,6 +82,39 @@ public class CompanyLogo {
                 .getJCDDocumentBuilder());
         documentBuilder.addBuilder(DocumentBuilderFactory
                 .getColorLayoutBuilder());
+        try {
+            siftFeatures = documentBuilder.createDocument(logo, identifier);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return siftFeatures;
+    }
+    
+    /**
+     * Returns the feature list with all available features.
+     * 
+     * @param identifier The identifier to be used in the database.
+     * 
+     * @return the SurfFeatures
+     */
+    public Document createAllFeatures(String identifier) {
+        ChainedDocumentBuilder documentBuilder = new ChainedDocumentBuilder();
+        documentBuilder.addBuilder(DocumentBuilderFactory.getAutoColorCorrelogramDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getCEDDDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getEdgeHistogramBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getColorHistogramDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getColorLayoutBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getFCTHDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getGaborDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getHashingCEDDDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getJCDDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getJointHistogramDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getJpegCoefficientHistogramDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getLuminanceLayoutDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getOpponentHistogramDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getPHOGDocumentBuilder());
+        documentBuilder.addBuilder(DocumentBuilderFactory.getTamuraDocumentBuilder());
+        
         try {
             siftFeatures = documentBuilder.createDocument(logo, identifier);
         } catch (FileNotFoundException e) {
